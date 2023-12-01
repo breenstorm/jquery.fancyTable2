@@ -1,9 +1,9 @@
 /*!
  * jQuery fancyTable plugin
- * https://github.com/myspace-nu
+ * https://github.com/breenstorm
  *
- * Copyright 2018 Johan Johansson
- * Released under the MIT license
+ * Copyright 2023 Basz
+ * Not for distribution
  */
 (function($) {
 	$.fn.fancyTable = function(options) {
