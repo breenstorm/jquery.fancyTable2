@@ -97,7 +97,6 @@
 					$(this).hide();
 				}
 			});
-			console.log(elm.fancyTable2.matches);
 			elm.fancyTable2.pages = Math.ceil(elm.fancyTable2.matches/elm.fancyTable2.perPage);
 			if(settings.pagination){
 				var paginationElement = (elm.fancyTable2.paginationElement) ? $(elm.fancyTable2.paginationElement) : $(elm).find(".pag");
@@ -284,7 +283,6 @@
 								elm.fancyTable2.sortOrder = 1;
 							}
 							elm.fancyTable2.sortColumn = $(this).data("field");
-							console.log("Sorting on " + elm.fancyTable2.sortColumn);
 							instance.tableSort(elm);
 							instance.tableUpdate(elm);
 							return false;
@@ -348,7 +346,7 @@
 										}
 									}
 								})
-								searchField.append($("<option>",{"value":null}).html("Select"));
+								searchField.append($("<option>",{"value":null}).html("Any").css("font-style","italic"));
 								values.sort();
 								values.forEach(function(val) {
 									searchField.append($("<option>",{"value":val}).html(val));
