@@ -56,7 +56,6 @@
 			settings.beforeUpdate.call(this,elm);
 			elm.fancyTable2.matches = 0;
 
-			console.log(elm.fancyTable2.searchArr);
 			$(elm).find("tbody tr").each(function(rownum,row) {
 				var n=0;
 				var match = true;
@@ -69,14 +68,12 @@
 						var d = $(row).data("searchdata");
 						if (d[searchfield]) {
 							if (instance.isSearchMatch(d[searchfield],searchval) ) {
-								console.log("found in searchdata");
 								found = true;
 							}
 						} else {
 							var t = searchfield.toString().split("_");
 							if (t[2]) {
 								if (instance.isSearchMatch($(row).find("td").eq(t[2]).html(),searchval) ) {
-									console.log("found in column");
 									found = true;
 								}
 							}
@@ -263,32 +260,34 @@
 				var nAElm=0;
 				$(elm).find("thead th").each(function() {
 					$(this).find("span").each(function() {
-						elm.fancyTable2.sortAs.push($(this).data('sortas'));
-						var content = $(this).html();
-						var a = $("<a>", {
-							href: "#",
-							"aria-label": "Sort by " + $(this).text(),
-							html: content,
-							"data-field": ($(this).data("field") ? $(this).data("field") : '_col_'+nAElm),
-							class: ""
-						}).css({
-							"cursor": "pointer",
-							"color": "inherit",
-							"text-decoration": "none",
-							"white-space": "nowrap"
-						}).bind("click", function () {
-							if (elm.fancyTable2.sortColumn == $(this).data("field")) {
-								elm.fancyTable2.sortOrder = -elm.fancyTable2.sortOrder;
-							} else {
-								elm.fancyTable2.sortOrder = 1;
-							}
-							elm.fancyTable2.sortColumn = $(this).data("field");
-							instance.tableSort(elm);
-							instance.tableUpdate(elm);
-							return false;
-						});
-						$(this).empty();
-						$(this).append(a);
+						if ($(this).data('sortas')!="none") {
+							elm.fancyTable2.sortAs.push($(this).data('sortas'));
+							var content = $(this).html();
+							var a = $("<a>", {
+								href: "#",
+								"aria-label": "Sort by " + $(this).text(),
+								html: content,
+								"data-field": ($(this).data("field") ? $(this).data("field") : '_col_'+nAElm),
+								class: ""
+							}).css({
+								"cursor": "pointer",
+								"color": "inherit",
+								"text-decoration": "none",
+								"white-space": "nowrap"
+							}).bind("click", function () {
+								if (elm.fancyTable2.sortColumn == $(this).data("field")) {
+									elm.fancyTable2.sortOrder = -elm.fancyTable2.sortOrder;
+								} else {
+									elm.fancyTable2.sortOrder = 1;
+								}
+								elm.fancyTable2.sortColumn = $(this).data("field");
+								instance.tableSort(elm);
+								instance.tableUpdate(elm);
+								return false;
+							});
+							$(this).empty();
+							$(this).append(a);
+						}
 					});
 					nAElm++;
 				});
