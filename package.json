@@ -2,10 +2,10 @@
   "name": "jquery.fancytable",
   "version": "2.0.0",
   "description": "A jQuery plugin for making html tables searchable and sortable with pagination.",
-  "main": "dist/fancyTable.js",
+  "main": "dist/fancyTable2.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/breenstorm/jquery.fancyTable.git"
+    "url": "git+https://github.com/breenstorm/jquery.fancyTable2.git"
   },
   "keywords": [
     "jquery",
@@ -14,6 +14,6 @@
     "sortable",
     "pagination"
   ],
-  "author": "Johan Johansson, Basz",
-  "license": "MIT"
+  "author": "Basz",
+  "license": "None"
 }
