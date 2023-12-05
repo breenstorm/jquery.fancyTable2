@@ -53,24 +53,40 @@
 		var instance = this;
 		this.settings = settings;
 		this.tableUpdate = function (elm) {
-			//TODO: Extend search
 			settings.beforeUpdate.call(this,elm);
 			elm.fancyTable2.matches = 0;
-			$(elm).find("tbody tr").each(function() {
+
+			console.log(elm.fancyTable2.searchArr);
+			$(elm).find("tbody tr").each(function(rownum,row) {
 				var n=0;
 				var match = true;
-				var globalMatch = false;
-				$(this).find("td").each(function() {
-					if(!settings.globalSearch && elm.fancyTable2.searchArr[n] && !(instance.isSearchMatch($(this).html(),elm.fancyTable2.searchArr[n]) )){
-						match = false;
-					} else if(settings.globalSearch && (!elm.fancyTable2.search || (instance.isSearchMatch($(this).html(),elm.fancyTable2.search) ))){
-						if(!Array.isArray(settings.globalSearchExcludeColumns) || !settings.globalSearchExcludeColumns.includes(n+1)){
-							globalMatch = true;
+
+				Object.keys(elm.fancyTable2.searchArr).forEach(function(searchfield) {
+					searchval = elm.fancyTable2.searchArr[searchfield];
+					if (searchval!="") {
+						var found = false;
+						//look for search-elm in searchdata or column
+						var d = $(row).data("searchdata");
+						if (d[searchfield]) {
+							if (instance.isSearchMatch(d[searchfield],searchval) ) {
+								console.log("found in searchdata");
+								found = true;
+							}
+						} else {
+							var t = searchfield.toString().split("_");
+							if (t[2]) {
+								if (instance.isSearchMatch($(row).find("td").eq(t[2]).html(),searchval) ) {
+									console.log("found in column");
+									found = true;
+								}
+							}
+						}
+						if (!found) {
+							match = false;
 						}
 					}
-					n++;
-				});
-				if((settings.globalSearch && globalMatch) || (!settings.globalSearch && match)){
+				})
+				if(match){
 					elm.fancyTable2.matches++
 					if(!settings.pagination || (elm.fancyTable2.matches>(elm.fancyTable2.perPage*(elm.fancyTable2.page-1)) && elm.fancyTable2.matches<=(elm.fancyTable2.perPage*elm.fancyTable2.page))){
 						$(this).show();
@@ -81,6 +97,7 @@
 					$(this).hide();
 				}
 			});
+			console.log(elm.fancyTable2.matches);
 			elm.fancyTable2.pages = Math.ceil(elm.fancyTable2.matches/elm.fancyTable2.perPage);
 			if(settings.pagination){
 				var paginationElement = (elm.fancyTable2.paginationElement) ? $(elm.fancyTable2.paginationElement) : $(elm).find(".pag");
@@ -140,8 +157,8 @@
 		};
 		this.tableSort = function (elm) {
 			if(typeof elm.fancyTable2.sortColumn !== "undefined") {
+				//Set the aria-sort (flip direction if it already is set)
 				$(elm).find("thead th span").each(function () {
-					//Toggle the sort mode
 					$(this).attr("aria-sort",
 						($(this).data("field") == elm.fancyTable2.sortColumn) ?
 							((elm.fancyTable2.sortOrder == 1) ? "ascending" : (elm.fancyTable2.sortOrder == -1) ? "descending" : "other")
@@ -170,20 +187,20 @@
 				);
 				$(elm).find("thead th span").find("[data-field="+elm.fancyTable2.sortColumn+"]").append(sortArrow);
 
-				//Do the sorting (rebuild the table content)
+				//Sort the rows
 				var rows = $(elm).find("tbody tr").toArray().sort(
 					function (a, b) {
-						if ($(a).data("searchdata")) {
-							var d = $(a).data("searchdata");
-							var cmpa = d[elm.fancyTable2.sortColumn];
+						var a_d = $(a).data("searchdata");
+						if (a_d[elm.fancyTable2.sortColumn]) {
+							var cmpa = a_d[elm.fancyTable2.sortColumn];
 						} else {
 							//if it has no data-search param, get the value from the column
 							var elma = $(a).find("td").eq(elm.fancyTable2.sortColumn);
 							var cmpa = typeof $(elma).data('sortvalue') !== 'undefined' ? $(elma).data('sortvalue') : elma.html();
 						}
-						if ($(b).data("searchdata")) {
-							var d = $(b).data("searchdata");
-							var cmpb = d[elm.fancyTable2.sortColumn];
+						var b_d = $(b).data("searchdata");
+						if (b_d[elm.fancyTable2.sortColumn]) {
+							var cmpb = b_d[elm.fancyTable2.sortColumn];
 						} else {
 							//if it has no data-search param, get the value from the column
 							var elmb = $(b).find("td").eq(elm.fancyTable2.sortColumn);
@@ -200,7 +217,7 @@
 					elm.fancyTable2.rowSortOrder[$(this).data("rowid")] = index;
 				});
 
-				//Append the rows
+				//Append the sorted rows
 				$(elm).find("tbody").empty().append(rows);
 			}
 		};
@@ -253,7 +270,7 @@
 							href: "#",
 							"aria-label": "Sort by " + $(this).text(),
 							html: content,
-							"data-field": ($(this).data("field") ? $(this).data("field") : nAElm),
+							"data-field": ($(this).data("field") ? $(this).data("field") : '_col_'+nAElm),
 							class: ""
 						}).css({
 							"cursor": "pointer",
@@ -279,45 +296,73 @@
 				});
 			}
 			if(settings.searchable){
-				var searchHeader = $("<tr>").addClass("fancySearchRow");
-				// if(settings.globalSearch){
-				// 	var searchField = $("<input>",{
-				// 		"aria-label": "Search table",
-				// 		"placeholder": settings.inputPlaceholder,
-				// 		style:"width:100%;box-sizing:border-box;"+settings.inputStyle
-				// 	}).bind("change paste keyup",function(){
-				// 		elm.fancyTable2.search = $(this).val();
-				// 		elm.fancyTable2.page = 1;
-				// 		instance.tableUpdate(elm);
-				// 	});
-				// 	var th = $("<th>",{ style:"padding:2px;" }).attr("colspan",elm.fancyTable2.nColumns);
-				// 	$(searchField).appendTo($(th));
-				// 	$(th).appendTo($(searchHeader));
-				// } else {
-					var nInputElm=0;
-					$(elm).find("td").first().parent().find("td").each(function() {
-						elm.fancyTable2.searchArr.push("");
-						var searchField = $("<input>",{
-							"aria-label": "Search column",
-							"data-n": nInputElm,
-							"placeholder": settings.inputPlaceholder,
-							style:"width:100%;box-sizing:border-box;"+settings.inputStyle
-						}).bind("change paste keyup",function(){
-							elm.fancyTable2.searchArr[$(this).data("n")] = $(this).val();
-							elm.fancyTable2.page = 1;
-							instance.tableUpdate(elm);
-						});
-						var th = $("<th>",{ style:"padding:2px;" });
-						$(searchField).appendTo($(th));
-						$(th).appendTo($(searchHeader));
-						nInputElm++;
+				// var searchHeader = $("<tr>").addClass("fancySearchRow");
+				var nInputElm=0;
+				$(elm).find("thead th").each(function() {
+					$(this).find("span").each(function(s_key,header) {
+//						elm.fancyTable2.searchArr.push("");
+						switch ($(header).data("searchas").toLowerCase()) {
+							case "text":
+								var searchField = $("<input>", {
+									"aria-label": "Search column",
+									"data-field": ($(header).data("field") ? $(header).data("field") : '_col_'+nInputElm),
+									"placeholder": settings.inputPlaceholder,
+									style: "box-sizing:border-box;" + settings.inputStyle
+								}).bind("change paste keyup", function () {
+									elm.fancyTable2.searchArr[''+$(this).data("field")] = $(this).val();
+									elm.fancyTable2.page = 1;
+									instance.tableUpdate(elm);
+								});
+								break;
+							case "list":
+								//Get values
+								//Build the select
+								var searchField = $("<select>", {
+									"aria-label": "Search column",
+									"data-field": ($(header).data("field") ? $(header).data("field") : '_col_'+nInputElm),
+									"placeholder": settings.inputPlaceholder,
+									style: "box-sizing:border-box;" + settings.inputStyle
+								}).bind("change paste keyup", function () {
+									if ($(this).find(":selected").attr('value')) {
+										elm.fancyTable2.searchArr[''+$(this).data("field")] = $(this).find(":selected").attr('value');
+									} else {
+										delete elm.fancyTable2.searchArr[''+$(this).data("field")];
+									}
+									elm.fancyTable2.page = 1;
+									instance.tableUpdate(elm);
+								});
+								var values = [];
+								$(elm).find("tr").each(function(key,row) {
+									if ($(row).has("td").length>0) {
+										var d = $(row).data("searchdata");
+										var field = ($(header).data("field") ? $(header).data("field") : '_col_'+nInputElm);
+										if (d[field]) {
+											if (!values.includes(d[field])) {
+												values.push(d[field]);
+											}
+										} else {
+											var fieldnum = field.split("_")[2];
+											if (!values.includes($(row).find("td").eq(fieldnum).html())) {
+												values.push($(row).find("td").eq(fieldnum).html());
+											}
+										}
+									}
+								})
+								searchField.append($("<option>",{"value":null}).html("Select"));
+								values.sort();
+								values.forEach(function(val) {
+									searchField.append($("<option>",{"value":val}).html(val));
+								})
+								break;
+						}
+						$(searchField).appendTo($(this));
 					});
-				// }
-				//add the search header after the table header
-				searchHeader.appendTo($(elm).find("thead"));
+					nInputElm++;
+				});
 			}
 			// Sort
 			instance.tableSort(elm);
+			// Do pagination
 			if(settings.pagination && !settings.paginationElement){
 				$(elm).find("tfoot").remove();
 				$(elm).append($("<tfoot><tr></tr></tfoot>"));
