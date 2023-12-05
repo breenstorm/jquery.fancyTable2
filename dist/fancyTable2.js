@@ -186,7 +186,7 @@
 				//Sort the rows
 				var rows = $(elm).find("tbody tr").toArray().sort(
 					function (a, b) {
-						var a_d = $(a).data("searchdata");
+						var a_d = ($(a).data("searchdata")?$(a).data("searchdata"):[]);
 						if (a_d[elm.fancyTable2.sortColumn]) {
 							var cmpa = a_d[elm.fancyTable2.sortColumn];
 						} else {
@@ -194,7 +194,7 @@
 							var elma = $(a).find("td").eq(elm.fancyTable2.sortColumn);
 							var cmpa = typeof $(elma).data('sortvalue') !== 'undefined' ? $(elma).data('sortvalue') : elma.html();
 						}
-						var b_d = $(b).data("searchdata");
+						var b_d = ($(b).data("searchdata")?$(b).data("searchdata"):[]);
 						if (b_d[elm.fancyTable2.sortColumn]) {
 							var cmpb = b_d[elm.fancyTable2.sortColumn];
 						} else {
