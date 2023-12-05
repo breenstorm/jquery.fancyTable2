@@ -351,6 +351,7 @@
 								})
 								break;
 						}
+						$("<br/>").appendTo($(this));
 						$(searchField).appendTo($(this));
 					});
 					nInputElm++;
