@@ -296,7 +296,11 @@
 				var nInputElm=0;
 				$(elm).find("thead th").each(function() {
 					$(this).find("span").each(function(s_key,header) {
-						switch ($(header).data("searchas").toLowerCase()) {
+						var type = "text";
+						if ($(header).data("searchas")) {
+							type = $(header).data("searchas").toLowerCase();
+						}
+						switch (type) {
 							case "text":
 								var searchField = $("<input>", {
 									"aria-label": "Search column",
