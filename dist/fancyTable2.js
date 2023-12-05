@@ -53,6 +53,7 @@
 		var instance = this;
 		this.settings = settings;
 		this.tableUpdate = function (elm) {
+			//TODO: Extend search
 			settings.beforeUpdate.call(this,elm);
 			elm.fancyTable2.matches = 0;
 			$(elm).find("tbody tr").each(function() {
@@ -132,48 +133,74 @@
 		};
 		this.reinit = function(){
 			$(this).each(function(){
-				$(this).find("th a").contents().unwrap();
+				$(this).find("th span a").contents().unwrap();
 				$(this).find("tr.fancySearchRow").remove();
 			});
 			$(this).fancyTable2(this.settings);
 		};
 		this.tableSort = function (elm) {
-			if(typeof elm.fancyTable2.sortColumn !== "undefined" && elm.fancyTable2.sortColumn < elm.fancyTable2.nColumns){
-				var iElm = 0;
-				$(elm).find("thead th").each(function(){
+			if(typeof elm.fancyTable2.sortColumn !== "undefined") {
+				$(elm).find("thead th span").each(function () {
+					//Toggle the sort mode
 					$(this).attr("aria-sort",
-						(iElm == elm.fancyTable2.sortColumn) ? 
-							( (elm.fancyTable2.sortOrder == 1) ? "ascending" : (elm.fancyTable2.sortOrder == -1) ? "descending" : "other" )
+						($(this).data("field") == elm.fancyTable2.sortColumn) ?
+							((elm.fancyTable2.sortOrder == 1) ? "ascending" : (elm.fancyTable2.sortOrder == -1) ? "descending" : "other")
 							: null // "none" // Remove the attribute instead of setting to "none" to avoid spamming screen readers.
 					);
-					iElm++;
 				});
-				$(elm).find("thead th div.sortArrow").each(function(){
+
+				//Remove all sort arrows
+				$(elm).find("thead th span div.sortArrow").each(function () {
 					$(this).remove();
 				});
-				var sortArrow = $("<div>",{"class":"sortArrow"}).css({"margin":"0.1em","display":"inline-block","width":0,"height":0,"border-left":"0.4em solid transparent","border-right":"0.4em solid transparent"});
+
+				//Add sort arrows
+				var sortArrow = $("<div>", {"class": "sortArrow"}).css({
+					"margin": "0.1em",
+					"display": "inline-block",
+					"width": 0,
+					"height": 0,
+					"border-left": "0.4em solid transparent",
+					"border-right": "0.4em solid transparent"
+				});
 				sortArrow.css(
-					(elm.fancyTable2.sortOrder>0) ?
-					{"border-top":"0.4em solid #000"} :
-					{"border-bottom":"0.4em solid #000"}
+					(elm.fancyTable2.sortOrder > 0) ?
+						{"border-top": "0.4em solid #000"} :
+						{"border-bottom": "0.4em solid #000"}
 				);
-				$(elm).find("thead th a").eq(elm.fancyTable2.sortColumn).append(sortArrow);
+				$(elm).find("thead th span").find("[data-field="+elm.fancyTable2.sortColumn+"]").append(sortArrow);
+
+				//Do the sorting (rebuild the table content)
 				var rows = $(elm).find("tbody tr").toArray().sort(
-					function(a, b) {
-						var elma = $(a).find("td").eq(elm.fancyTable2.sortColumn);
-						var elmb = $(b).find("td").eq(elm.fancyTable2.sortColumn);
-						var cmpa = typeof $(elma).data('sortvalue') !== 'undefined' ? $(elma).data('sortvalue') : elma.html();
-						var cmpb = typeof $(elmb).data('sortvalue') !== 'undefined' ? $(elmb).data('sortvalue') : elmb.html();
-						if(elm.fancyTable2.sortAs[elm.fancyTable2.sortColumn] == 'case-insensitive') {
+					function (a, b) {
+						if ($(a).data("searchdata")) {
+							var d = $(a).data("searchdata");
+							var cmpa = d[elm.fancyTable2.sortColumn];
+						} else {
+							//if it has no data-search param, get the value from the column
+							var elma = $(a).find("td").eq(elm.fancyTable2.sortColumn);
+							var cmpa = typeof $(elma).data('sortvalue') !== 'undefined' ? $(elma).data('sortvalue') : elma.html();
+						}
+						if ($(b).data("searchdata")) {
+							var d = $(b).data("searchdata");
+							var cmpb = d[elm.fancyTable2.sortColumn];
+						} else {
+							//if it has no data-search param, get the value from the column
+							var elmb = $(b).find("td").eq(elm.fancyTable2.sortColumn);
+							var cmpb = typeof $(elmb).data('sortvalue') !== 'undefined' ? $(elmb).data('sortvalue') : elmb.html();
+						}
+						if (elm.fancyTable2.sortAs[elm.fancyTable2.sortColumn] == 'case-insensitive') {
 							cmpa = cmpa.toLowerCase();
 							cmpb = cmpb.toLowerCase();
 						}
-						return settings.sortFunction.call(this,cmpa,cmpb,elm.fancyTable2,a,b);
+						return settings.sortFunction.call(this, cmpa, cmpb, elm.fancyTable2, a, b);
 					}
 				);
-				$(rows).each(function(index) {
+				$(rows).each(function (index) {
 					elm.fancyTable2.rowSortOrder[$(this).data("rowid")] = index;
 				});
+
+				//Append the rows
 				$(elm).find("tbody").empty().append(rows);
 			}
 		};
@@ -219,27 +246,35 @@
 			if(settings.sortable){
 				var nAElm=0;
 				$(elm).find("thead th").each(function() {
-					elm.fancyTable2.sortAs.push($(this).data('sortas'));
-					var content = $(this).html();
-					var a = $("<a>",{
-						href: "#",
-						"aria-label": "Sort by " + $(this).text(),
-						html:content,
-						"data-n": nAElm,
-						class:""
-					}).css({"cursor":"pointer","color":"inherit","text-decoration":"none","white-space":"nowrap"}).bind("click",function(){
-						if(elm.fancyTable2.sortColumn == $(this).data("n")){
-							elm.fancyTable2.sortOrder=-elm.fancyTable2.sortOrder;
-						} else {
-							elm.fancyTable2.sortOrder=1;
-						}
-						elm.fancyTable2.sortColumn = $(this).data("n");
-						instance.tableSort(elm);
-						instance.tableUpdate(elm);
-						return false;
+					$(this).find("span").each(function() {
+						elm.fancyTable2.sortAs.push($(this).data('sortas'));
+						var content = $(this).html();
+						var a = $("<a>", {
+							href: "#",
+							"aria-label": "Sort by " + $(this).text(),
+							html: content,
+							"data-field": ($(this).data("field") ? $(this).data("field") : nAElm),
+							class: ""
+						}).css({
+							"cursor": "pointer",
+							"color": "inherit",
+							"text-decoration": "none",
+							"white-space": "nowrap"
+						}).bind("click", function () {
+							if (elm.fancyTable2.sortColumn == $(this).data("field")) {
+								elm.fancyTable2.sortOrder = -elm.fancyTable2.sortOrder;
+							} else {
+								elm.fancyTable2.sortOrder = 1;
+							}
+							elm.fancyTable2.sortColumn = $(this).data("field");
+							console.log("Sorting on " + elm.fancyTable2.sortColumn);
+							instance.tableSort(elm);
+							instance.tableUpdate(elm);
+							return false;
+						});
+						$(this).empty();
+						$(this).append(a);
 					});
-					$(this).empty();
-					$(this).append(a);
 					nAElm++;
 				});
 			}
