@@ -294,11 +294,9 @@
 				});
 			}
 			if(settings.searchable){
-				// var searchHeader = $("<tr>").addClass("fancySearchRow");
 				var nInputElm=0;
 				$(elm).find("thead th").each(function() {
 					$(this).find("span").each(function(s_key,header) {
-//						elm.fancyTable2.searchArr.push("");
 						switch ($(header).data("searchas").toLowerCase()) {
 							case "text":
 								var searchField = $("<input>", {
