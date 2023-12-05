@@ -65,7 +65,7 @@
 					if (searchval!="") {
 						var found = false;
 						//look for search-elm in searchdata or column
-						var d = $(row).data("searchdata");
+						var d = ($(row).data("searchdata")?$(row).data("searchdata"):[]);
 						if (d[searchfield]) {
 							if (instance.isSearchMatch(d[searchfield],searchval) ) {
 								found = true;
@@ -336,7 +336,7 @@
 								var values = [];
 								$(elm).find("tr").each(function(key,row) {
 									if ($(row).has("td").length>0) {
-										var d = $(row).data("searchdata");
+										var d = ($(row).data("searchdata")?$(row).data("searchdata"):[]);
 										var field = ($(header).data("field") ? $(header).data("field") : '_col_'+nInputElm);
 										if (d[field]) {
 											if (!values.includes(d[field])) {
