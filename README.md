@@ -2,33 +2,18 @@
 
 A jQuery plugin for making html tables searchable and sortable with pagination.
 
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/myspace-nu/jquery.fancyTable/blob/master/LICENSE)
-[![Code size](https://img.shields.io/github/languages/code-size/myspace-nu/jquery.fancyTable)](https://github.com/myspace-nu/jquery.fancyTable)
-[![Issues](https://img.shields.io/github/issues-raw/myspace-nu/jquery.fancyTable)](https://github.com/myspace-nu/jquery.fancyTable/issues)
-
-## Live demo
-
-See a live demo on [CodePen](https://codepen.io/myspace-nu/full/ZVEKyR)
 
 ## Installation
 
-Using npm
+By including the script *after* the jQuery library
 
-	npm install jquery.fancytable --save
-
-Using CDN
-
-	<script src="https://cdn.jsdelivr.net/npm/jquery.fancytable/dist/fancyTable.min.js"></script>
-
-Or manually by including the script *after* the jQuery library
-
-	<script src="/path/to/fancyTable.min.js"></script>
+	<script src="/path/to/fancyTable2.min.js"></script>
 
 ## Usage
 
 	<script type="text/javascript">
 		$(document).ready(function() {
-			$(".sampleTable").fancyTable({
+			$(".sampleTable").fancyTable2({
 				sortColumn:0,
 				pagination: true,
 				perPage:10,
@@ -202,4 +187,3 @@ Or manually by including the script *after* the jQuery library
 	<td>I Know What You Did Last Summer</td>
 
 
-### Author: [Johan Johansson](https://github.com/myspace-nu)
