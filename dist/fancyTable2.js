@@ -353,7 +353,9 @@
 								searchField.append($("<option>",{"value":null}).html("Any").css("font-style","italic"));
 								values.sort();
 								values.forEach(function(val) {
-									searchField.append($("<option>",{"value":val}).html(val));
+									if (val!="") {
+										searchField.append($("<option>",{"value":val}).html(val));
+									}
 								})
 								break;
 						}
