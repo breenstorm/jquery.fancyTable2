@@ -186,20 +186,23 @@
 				//Sort the rows
 				var rows = $(elm).find("tbody tr").toArray().sort(
 					function (a, b) {
+						var field = elm.fancyTable2.sortColumn;
 						var a_d = ($(a).data("searchdata")?$(a).data("searchdata"):[]);
-						if (a_d[elm.fancyTable2.sortColumn]) {
-							var cmpa = a_d[elm.fancyTable2.sortColumn];
+						if (a_d[field]) {
+							var cmpa = a_d[field];
 						} else {
 							//if it has no data-search param, get the value from the column
-							var elma = $(a).find("td").eq(elm.fancyTable2.sortColumn);
+							var fieldnum = field.split("_")[2];
+							var elma = $(a).find("td").eq(fieldnum);
 							var cmpa = typeof $(elma).data('sortvalue') !== 'undefined' ? $(elma).data('sortvalue') : elma.html();
 						}
 						var b_d = ($(b).data("searchdata")?$(b).data("searchdata"):[]);
-						if (b_d[elm.fancyTable2.sortColumn]) {
-							var cmpb = b_d[elm.fancyTable2.sortColumn];
+						if (b_d[field]) {
+							var cmpb = b_d[field];
 						} else {
 							//if it has no data-search param, get the value from the column
-							var elmb = $(b).find("td").eq(elm.fancyTable2.sortColumn);
+							var fieldnum = field.split("_")[2];
+							var elmb = $(b).find("td").eq(fieldnum);
 							var cmpb = typeof $(elmb).data('sortvalue') !== 'undefined' ? $(elmb).data('sortvalue') : elmb.html();
 						}
 						if (elm.fancyTable2.sortAs[elm.fancyTable2.sortColumn] == 'case-insensitive') {
