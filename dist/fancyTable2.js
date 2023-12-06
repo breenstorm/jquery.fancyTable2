@@ -264,7 +264,7 @@
 				$(elm).find("thead th").each(function() {
 					$(this).find("span").each(function() {
 						if ($(this).data('sortas')!="none") {
-							elm.fancyTable2.sortAs.push($(this).data('sortas'));
+							elm.fancyTable2.sortAs[($(this).data("field") ? $(this).data("field") : '_col_'+nAElm)]=($(this).data('sortas'));
 							var content = $(this).html();
 							var a = $("<a>", {
 								href: "#",

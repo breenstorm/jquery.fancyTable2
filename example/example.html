@@ -13,7 +13,7 @@
     <thead>
     <tr>
       <th>
-        <span data-searchas="list">
+        <span data-searchas="list" data-sortas="numeric">
         Col A
         </span><br/>
         <span data-searchas="list" data-field="col_d">
@@ -137,10 +137,10 @@
   $(document).ready(function() {
     // Generate a big table
     for(var n=0;n<1000;n++){
-      var row = $("<tr>").attr("data-searchdata",JSON.stringify({col_d:rWord(8)}));
+      var row = $("<tr>").attr("data-searchdata",JSON.stringify({col_d:Math.floor(Math.random()*1000)}));
       $("#sampleTableA").find("thead th").each(function(key,elm) {
         $("<td>",{
-          html: ($(elm).has("span").length>0?rWord(8):""),
+          html: ($(elm).has("span").length>0?Math.floor(Math.random()*1000):""),
           style:"padding:2px;"
         }).appendTo($(row));
       });
