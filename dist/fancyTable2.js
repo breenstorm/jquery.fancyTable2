@@ -297,6 +297,15 @@
 			}
 			if(settings.searchable){
 				var nInputElm=0;
+				$('button[type="reset"]').on("click",function() {
+					$(':input')
+						.not(':button, :submit, :reset, :hidden')
+						.val('')
+						.prop('selectedIndex',0);
+					elm.fancyTable2.searchArr = [];
+					elm.fancyTable2.page = 1;
+					instance.tableUpdate(elm);
+				})
 				$(elm).find("thead th").each(function() {
 					$(this).find("span").each(function(s_key,header) {
 						var type = "text";
