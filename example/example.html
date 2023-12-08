@@ -137,7 +137,7 @@
   $(document).ready(function() {
     // Generate a big table
     for(var n=0;n<1000;n++){
-      var row = $("<tr>").attr("data-searchdata",JSON.stringify({col_d:Math.floor(Math.random()*1000)}));
+      var row = $("<tr>").attr("data-searchdata",JSON.stringify({col_d:(n==5?null:Math.floor(Math.random()*1000))}));
       $("#sampleTableA").find("thead th").each(function(key,elm) {
         $("<td>",{
           html: ($(elm).has("span").length>0?Math.floor(Math.random()*1000):""),
